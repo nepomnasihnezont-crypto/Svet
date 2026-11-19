@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Корзина — Светлячок</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <img src="images/logo.webp" alt="Светлячок" />
+        <span>Светлячок</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html">Главная</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="cart.html" class="active">Корзина <span class="cart-badge" id="cart-count">0</span></a>
+        <a href="contacts.html">Контакты</a>
+      </nav>
+
+      <a href="tel:+79528060130" class="header-phone">8 (952) 806-01-30</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="catalog-header">
+      <div class="container">
+        <span class="eyebrow">Оформление заказа</span>
+        <div class="catalog-title-row">
+          <h1>Корзина</h1>
+          <span class="catalog-count" id="cart-items-label">Товаров: 0</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="empty-state" id="cart-empty" hidden>
+        <p style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">В корзине пока пусто</p>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Загляните в каталог — там много новинок и выгодных предложений.</p>
+        <a href="catalog.html" class="btn-pill-forest">Перейти в каталог</a>
+      </div>
+
+      <div class="cart-layout" id="cart-content" hidden>
+        <div class="cart-items-list" id="cart-list"></div>
+
+        <aside class="summary-card">
+          <h2>Ваш заказ</h2>
+          <div class="summary-row">
+            <span>Количество товаров:</span>
+            <strong id="summary-qty">0 шт.</strong>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Итого:</span>
+            <span id="summary-price">0 ₽</span>
+          </div>
+
+          <form id="order-form">
+            <div class="form-group">
+              <label for="customer-name">Ваше имя</label>
+              <input type="text" id="customer-name" required placeholder="Например, Анна" />
+            </div>
+            <div class="form-group">
+              <label for="customer-phone">Телефон для связи</label>
+              <input type="tel" id="customer-phone" required placeholder="+7 (___) ___-__-__" />
+            </div>
+            <div class="form-group">
+              <label for="customer-comment">Комментарий (размер, самовывоз или доставка)</label>
+              <textarea id="customer-comment" rows="2" placeholder="Уточнения по заказу..."></textarea>
+            </div>
+            <button type="submit" class="btn-pill-forest" style="width: 100%; justify-content: center; margin-top: 18px;">
+              Оформить заявку
+            </button>
+          </form>
+        </aside>
+      </div>
+
+      <div class="empty-state" id="order-success" hidden>
+        <p style="font-size: 22px; font-weight: 700; color: var(--accent-forest); margin-bottom: 8px;">Заявка принята!</p>
+        <p style="color: var(--text-muted); max-width: 460px; margin: 0 auto 20px;">
+          Мы свяжемся с вами по указанному номеру в ближайшее время для подтверждения наличия и деталей получения.
+        </p>
+        <a href="catalog.html" class="btn-pill-forest">Вернуться в каталог</a>
+      </div>
+    </div>
+  </main>
+
+  <nav class="mobile-bottom-nav">
+    <a href="index.html"><span>Главная</span></a>
+    <a href="catalog.html"><span>Каталог</span></a>
+    <a href="cart.html" class="active"><span>Корзина (<b id="mob-cart-count">0</b>)</span></a>
+    <a href="contacts.html"><span>Контакты</span></a>
+  </nav>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>Светлячок</strong> · © 2026</div>
+      <div class="footer-links">
+        <a href="index.html">Главная</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="cart.html">Корзина</a>
+        <a href="contacts.html">Контакты</a>
+      </div>
+      <div><a href="tel:+79528060130">8 (952) 806-01-30</a></div>
+    </div>
+  </footer>
+
+  <script>
+    function getCart() {
+      return JSON.parse(localStorage.getItem("svetlyachok_cart") || "[]");
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem("svetlyachok_cart", JSON.stringify(cart));
+      renderCart();
+    }
+
+    function changeQty(id, delta) {
+      let cart = getCart();
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) {
+        cart = cart.filter(i => i.id !== id);
+      }
+      saveCart(cart);
+    }
+
+    function removeItem(id) {
+      const cart = getCart().filter(i => i.id !== id);
+      saveCart(cart);
+    }
+
+    function renderCart() {
+      const cart = getCart();
+      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      document.getElementById("cart-count").textContent = totalQty;
+      document.getElementById("mob-cart-count").textContent = totalQty;
+      document.getElementById("cart-items-label").textContent = `Товаров: ${totalQty}`;
+
+      const emptyBlock = document.getElementById("cart-empty");
+      const contentBlock = document.getElementById("cart-content");
+      const listEl = document.getElementById("cart-list");
+
+      if (cart.length === 0) {
+        emptyBlock.hidden = false;
+        contentBlock.hidden = true;
+        return;
+      }
+
+      emptyBlock.hidden = true;
+      contentBlock.hidden = false;
+
+      document.getElementById("summary-qty").textContent = `${totalQty} шт.`;
+      document.getElementById("summary-price").textContent = `${totalPrice.toLocaleString("ru-RU")} ₽`;
+
+      listEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.title}" onerror="this.src='images/logo.webp'; this.style.objectFit='contain'; this.style.padding='12px';" />
+          <div class="cart-item-info">
+            <div class="cart-item-title">${item.title}</div>
+            <div class="cart-item-meta">${item.meta}</div>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+              <span>${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+          </div>
+          <div class="cart-item-right">
+            <strong>${(item.price * item.qty).toLocaleString("ru-RU")} ₽</strong>
+            <button class="btn-remove" onclick="removeItem(${item.id})">Удалить</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("order-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      localStorage.removeItem("svetlyachok_cart");
+      renderCart();
+      document.getElementById("cart-empty").hidden = true;
+      document.getElementById("order-success").hidden = false;
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>

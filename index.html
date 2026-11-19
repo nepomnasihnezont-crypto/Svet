@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Светлячок — магазин одежды и полезных товаров для всей семьи</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <img src="images/logo.webp" alt="Светлячок" />
+        <span>Светлячок</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html" class="active">Главная</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="cart.html">Корзина <span class="cart-badge" id="cart-count">0</span></a>
+        <a href="contacts.html">Контакты</a>
+      </nav>
+
+      <a href="tel:+79528060130" class="header-phone">8 (952) 806-01-30</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <span class="eyebrow">Для всей семьи · Уют и выгода</span>
+        <h1 class="hero-title">Светлячок</h1>
+        <p class="hero-subtitle">Магазин одежды и полезных товаров для всей семьи</p>
+
+        <a href="https://max.ru/join/hbU644XuPRjI790T-eX1KNmPfKuoRqVbMJqG8pOZTXk" target="_blank" rel="noopener" class="btn-pill-forest">
+          Наша группа в Макс ↗
+        </a>
+
+        <div class="promo-banner-wrap">
+          <a href="catalog.html?type=распродажа&title=Распродажа">
+            <img src="images/uploads/sale-banner.png" alt="Светлячок принес скидки!" />
+          </a>
+        </div>
+
+        <div class="quick-links-grid">
+          <a href="catalog.html?type=новинки&title=Новинки" class="quick-card quick-card--new">
+            <span>Новинки поступления</span>
+            <span class="arrow">→</span>
+          </a>
+          <a href="catalog.html?type=распродажа&title=Распродажа" class="quick-card quick-card--sale">
+            <span>Горячая распродажа</span>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="editorial-strip">
+      <span>Регулярное обновление ассортимента</span>
+      <span>Одежда для взрослых и детей</span>
+      <span>Полезные мелочи для дома</span>
+    </div>
+
+    <section class="section-block">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Разделы магазина</span>
+            <h2>Выберите направление</h2>
+          </div>
+          <a href="catalog.html" style="font-weight: 600; color: var(--accent-forest);">Весь каталог ↗</a>
+        </div>
+
+        <div class="categories-grid">
+          <a href="catalog.html?type=новинки&title=Новинки" class="cat-card">
+            <small>Свежий привоз</small>
+            <div>
+              <h3>Новинки сезона</h3>
+              <p>Актуальные модели одежды и свежие поступления недели.</p>
+            </div>
+          </a>
+
+          <a href="catalog.html" class="cat-card">
+            <small>Ассортимент</small>
+            <div>
+              <h3>Одежда и товары для дома</h3>
+              <p>Практичные вещи на каждый день для всей семьи.</p>
+            </div>
+          </a>
+
+          <a href="catalog.html?type=распродажа&title=Распродажа" class="cat-card">
+            <small>Выгодные цены</small>
+            <div>
+              <h3>Скидки и акции</h3>
+              <p>Подборка товаров по специальным ценам.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>Светлячок</strong> · © 2026
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Главная</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="cart.html">Корзина</a>
+        <a href="contacts.html">Контакты</a>
+      </div>
+      <div>
+        <a href="tel:+79528060130">8 (952) 806-01-30</a>
+      </div>
+    </div>
+  </footer>
+<nav class="mobile-bottom-nav">
+    <a href="index.html" class="active"><span>Главная</span></a>
+    <a href="catalog.html"><span>Каталог</span></a>
+    <a href="cart.html"><span>Корзина (<b id="mob-cart-count">0</b>)</span></a>
+    <a href="contacts.html"><span>Контакты</span></a>
+  </nav>
+
+  <script>
+    const cart = JSON.parse(localStorage.getItem("svetlyachok_cart") || "[]");
+    const total = cart.reduce((sum, item) => sum + item.qty, 0);
+    document.getElementById("cart-count").textContent = total;
+    document.getElementById("mob-cart-count").textContent = total;
+  </script>
+</body>
+</body>
+</html>
