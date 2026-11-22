@@ -299,6 +299,7 @@ var cloudTimer=null;
 var cloudPushing=false;
 var cloudPulling=false;
 var cloudReady=false;
+var cloudError=false;
 
 function $(id){return document.getElementById(id);}
 function defaultState(){return{profile:{name:'',pin:''},meta:{opens:0,entriesCreated:0,firstOpen:new Date().toISOString()},places:['Малиновка'],entries:[]};}
@@ -377,21 +378,34 @@ function mergeStates(local,remote){
 function renderCloudStatus(){
   var box=$('cloudStatus');
   if(!box)return;
+  if(cloudError&&(!cloudReady||cloudDirty)){
+    box.textContent='Облако: нет связи, записи сохранены на устройстве и отправятся автоматически.';
+    return;
+  }
   if(!cloudReady){box.textContent='Облако: подключение…';return;}
+  if(cloudDirty){box.textContent='Облако: синхронизация…';return;}
   box.textContent='Облако: подключено, записи синхронизируются автоматически между устройствами.';
 }
+var cloudDirty=false;
 function scheduleCloudPush(){
-  if(!cloudReady)return;
   clearTimeout(cloudTimer);
+  cloudDirty=true;
   cloudTimer=setTimeout(cloudPushNow,1500);
 }
 function cloudPushNow(){
-  if(!cloudReady||cloudPushing||cloudPulling)return;
+  if(!cloudReady||!cloudDirty)return;
+  if(cloudPushing||cloudPulling){cloudTimer=setTimeout(cloudPushNow,800);return;}
   cloudPushing=true;
-  cloudEncrypt(state,GATE_PIN).then(function(payload){return cloudPut(payload);}).then(function(){
+  var p;
+  try{p=cloudEncrypt(state,GATE_PIN);}catch(e){p=Promise.reject(e);}
+  p.then(function(payload){return cloudPut(payload);}).then(function(){
     cloudPushing=false;
+    cloudDirty=false;
+    renderCloudStatus();
   }).catch(function(){
     cloudPushing=false;
+    cloudError=true;
+    renderCloudStatus();
     cloudTimer=setTimeout(cloudPushNow,15000);
   });
 }
@@ -405,9 +419,18 @@ function cloudSync(migrateLocal,done){
     return cloudDecrypt(payload,GATE_PIN).catch(function(){throw {empty:true};});
   }).then(function(remote){
     var local=state;
-    if(migrateLocal&&(local.entries.length||local.profile.name||local.places.length>1)){
+    var hasLocal=local.entries.length||local.profile.name||local.places.length>1;
+    if(migrateLocal&&hasLocal){
       state=mergeStates(local,remote);
+      save();
+      renderAll();
       toast('Записи объединены и перенесены в облако');
+      scheduleCloudPush();
+      if(done)done();
+      return;
+    }
+    if(cloudDirty&&hasLocal){
+      state=mergeStates(local,remote);
     }else{
       var localCount=local.entries.length;
       state=normalize(remote);
@@ -415,6 +438,8 @@ function cloudSync(migrateLocal,done){
     }
     save();
     renderAll();
+    if(cloudDirty)scheduleCloudPush();
+    if(done)done();
   }).catch(function(err){
     cloudPulling=false;
     if(err&&err.empty){
@@ -424,15 +449,15 @@ function cloudSync(migrateLocal,done){
         if(migrateLocal)toast('Записи перенесены в облако');
       });
     }
+    cloudError=true;
     renderCloudStatus();
   }).then(function(){
+    cloudPulling=false;
     cloudReady=true;
     renderCloudStatus();
-    if(done)done();
   });
 }
 function onCloudChange(){
-  if(!cloudReady)return;
   save();
   scheduleCloudPush();
   renderAll();
@@ -873,6 +898,7 @@ function init(){
   save();
   bindEvents();
   bindGate();
+  if(!$('f-date').value)$('f-date').value=todayStr();
   var locked=!sessionStorage.getItem(SESSION_KEY);
   if(locked){
     show($('lockOverlay'));
