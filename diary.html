@@ -402,7 +402,8 @@ function cloudSync(migrateLocal,done){
     cloudPulling=false;
     var payload=String(text||'').trim();
     if(!payload)throw {empty:true};
-    return cloudDecrypt(payload,GATE_PIN).then(function(remote){
+    return cloudDecrypt(payload,GATE_PIN).catch(function(){throw {empty:true};});
+  }).then(function(remote){
       var local=state;
       if(migrateLocal&&(local.entries.length||local.profile.name||local.places.length>1)){
         state=mergeStates(local,remote);
