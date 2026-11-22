@@ -404,18 +404,17 @@ function cloudSync(migrateLocal,done){
     if(!payload)throw {empty:true};
     return cloudDecrypt(payload,GATE_PIN).catch(function(){throw {empty:true};});
   }).then(function(remote){
-      var local=state;
-      if(migrateLocal&&(local.entries.length||local.profile.name||local.places.length>1)){
-        state=mergeStates(local,remote);
-        toast('Записи объединены и перенесены в облако');
-      }else{
-        var localCount=local.entries.length;
-        state=normalize(remote);
-        if(localCount&&state.entries.length>localCount)toast('Загружены записи из облака');
-      }
-      save();
-      renderAll();
-    });
+    var local=state;
+    if(migrateLocal&&(local.entries.length||local.profile.name||local.places.length>1)){
+      state=mergeStates(local,remote);
+      toast('Записи объединены и перенесены в облако');
+    }else{
+      var localCount=local.entries.length;
+      state=normalize(remote);
+      if(localCount&&state.entries.length>localCount)toast('Загружены записи из облака');
+    }
+    save();
+    renderAll();
   }).catch(function(err){
     cloudPulling=false;
     if(err&&err.empty){
