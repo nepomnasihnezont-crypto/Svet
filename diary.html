@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Умный дневник прилавка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-main:#DFCEB4;
+  --bg-surface:#EFE4D2;
+  --bg-card-soft:#D3C1A3;
+  --accent-forest:#394D3E;
+  --accent-forest-dark:#2B3B2F;
+  --accent-ochre:#9E7836;
+  --accent-ochre-hover:#856329;
+  --text-primary:#2C3227;
+  --text-muted:#5F6355;
+  --text-on-dark:#F7F1E5;
+  --danger:#9B2C2C;
+  --border-subtle:rgba(44,50,39,.14);
+  --shadow-soft:0 14px 34px rgba(44,50,39,.08);
+  --radius-lg:24px;
+  --radius-md:16px;
+  --radius-pill:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Manrope',sans-serif;background:var(--bg-main);color:var(--text-primary);line-height:1.5;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+.container{width:100%;max-width:760px;margin:0 auto;padding:0 16px}
+.hidden{display:none!important}
+.site-header{position:sticky;top:0;z-index:50;background:rgba(223,206,180,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.brand-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;white-space:nowrap}
+.header-phone{font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--radius-pill);border:1px solid var(--border-subtle);background:var(--bg-surface);white-space:nowrap}
+.header-phone:hover{background:var(--accent-forest);color:var(--text-on-dark);border-color:var(--accent-forest)}
+.tabs-wrap{border-top:1px solid var(--border-subtle)}
+.tabs{display:flex;gap:8px;padding:10px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-btn{flex:1 0 auto;padding:9px 16px;border-radius:var(--radius-pill);border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-primary);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s ease}
+.tab-btn:hover{border-color:var(--accent-forest)}
+.tab-btn.active{background:var(--accent-forest);color:var(--text-on-dark);border-color:var(--accent-forest)}
+main{flex:1;padding:24px 0 48px}
+.tab{display:none}
+.tab.active{display:block}
+.card{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:22px;margin-bottom:20px;box-shadow:var(--shadow-soft)}
+.card h2{font-family:'Cormorant Garamond',serif;font-size:26px;line-height:1.15;margin-bottom:6px}
+.hint{font-size:13px;color:var(--text-muted);margin-bottom:14px}
+.hint-sm{display:block;font-size:12px;color:var(--text-muted);font-weight:500}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.fg label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:5px;color:var(--text-primary)}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;border-radius:12px;border:1px solid var(--border-subtle);background:var(--bg-main);color:var(--text-primary);font-size:14px;outline:none;transition:border-color .2s ease}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent-forest)}
+.fg textarea{resize:vertical}
+.fg.full{grid-column:1/-1}
+.net-preview{margin:16px 0;padding:13px 16px;border-radius:var(--radius-md);background:var(--bg-card-soft);font-size:15px;display:flex;flex-direction:column;gap:2px}
+.net-preview strong{font-size:20px;color:var(--accent-forest-dark)}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-forest{display:inline-flex;align-items:center;gap:8px;background:var(--accent-forest);color:var(--text-on-dark);font-size:14px;font-weight:600;padding:12px 24px;border-radius:var(--radius-pill);border:none;cursor:pointer;box-shadow:0 8px 20px rgba(57,77,62,.22)}
+.btn-forest:hover{background:var(--accent-forest-dark)}
+.btn-ghost{display:inline-flex;align-items:center;background:none;border:1px solid var(--border-subtle);color:var(--text-primary);font-size:14px;font-weight:600;padding:12px 22px;border-radius:var(--radius-pill);cursor:pointer}
+.btn-ghost:hover{border-color:var(--accent-forest);color:var(--accent-forest)}
+.btn-ochre{background:var(--accent-ochre);color:var(--text-on-dark);border:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:var(--radius-pill);cursor:pointer}
+.btn-ochre:hover{background:var(--accent-ochre-hover)}
+.btn-danger{background:none;border:1px solid var(--danger);color:var(--danger);font-size:14px;font-weight:600;padding:11px 20px;border-radius:var(--radius-pill);cursor:pointer}
+.btn-danger:hover{background:var(--danger);color:var(--text-on-dark)}
+.entry-card{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px;margin-bottom:14px}
+.entry-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.entry-date{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700}
+.entry-place{font-size:13px;font-weight:700;color:var(--accent-ochre);text-transform:uppercase;letter-spacing:.05em}
+.entry-weather{font-size:13px;color:var(--text-muted)}
+.entry-nums{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:14px;margin-bottom:10px}
+.entry-nums .row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--border-subtle);padding-bottom:3px}
+.entry-nums .row strong.net{color:var(--accent-forest-dark)}
+.entry-texts{font-size:13px;color:var(--text-muted);display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.entry-actions{display:flex;gap:8px}
+.mini-btn{background:none;border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-primary)}
+.mini-btn:hover{border-color:var(--accent-forest);color:var(--accent-forest)}
+.mini-btn.del:hover{border-color:var(--danger);color:var(--danger)}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--bg-card-soft);border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+.kpi-value{font-size:19px;font-weight:700;color:var(--accent-forest-dark)}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border-subtle);white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+td.num,th.num{text-align:right}
+tr.best td{font-weight:700;color:var(--accent-forest-dark)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--bg-card-soft);border-radius:var(--radius-pill);padding:7px 14px;font-size:13px;font-weight:600}
+.chip button{border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-muted);padding:0}
+.chip button:hover{color:var(--danger)}
+.chip .cnt{color:var(--accent-ochre)}
+.row-inline{display:flex;gap:10px;flex-wrap:wrap}
+.row-inline input[type=text],.row-inline input[type=number]{flex:1 1 180px;padding:10px 13px;border-radius:12px;border:1px solid var(--border-subtle);background:var(--bg-main);font-size:14px;outline:none}
+.counter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.counter-item{background:var(--bg-card-soft);border-radius:var(--radius-md);padding:12px 14px}
+.counter-item .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted)}
+.counter-item .val{font-size:16px;font-weight:700;color:var(--accent-forest-dark);word-break:break-word}
+.overlay{position:fixed;inset:0;background:rgba(44,50,39,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.overlay.open{display:flex}
+.overlay-card{background:var(--bg-surface);border-radius:var(--radius-lg);padding:26px;width:100%;max-width:380px;box-shadow:var(--shadow-soft)}
+.overlay-card h2{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:10px}
+.overlay-card input{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border-subtle);background:var(--bg-main);font-size:15px;outline:none;margin-bottom:12px}
+.overlay-card .err{color:var(--danger);font-size:13px;min-height:18px;margin-bottom:8px}
+.empty-state{text-align:center;padding:44px 20px;background:var(--bg-surface);border:1px dashed var(--border-subtle);border-radius:var(--radius-lg);color:var(--text-muted);font-size:14px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent-forest-dark);color:var(--text-on-dark);padding:11px 22px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:120;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.site-footer{background:var(--bg-surface);border-top:1px solid var(--border-subtle);padding:18px 0;font-size:13px;color:var(--text-muted)}
+.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:560px){
+  .grid2{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .entry-nums{grid-template-columns:1fr}
+  .counter-grid{grid-template-columns:1fr}
+  .brand-logo{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="lockOverlay">
+  <div class="overlay-card">
+    <h2>🔒 Дневник под защитой</h2>
+    <p class="hint">Введите PIN-код, чтобы открыть дневник.</p>
+    <input type="password" id="lockPin" inputmode="numeric" maxlength="6" placeholder="PIN-код" autocomplete="off">
+    <div class="err" id="lockErr"></div>
+    <button class="btn-forest" id="lockBtn" style="width:100%;justify-content:center">Войти</button>
+  </div>
+</div>
+
+<div class="overlay" id="welcomeOverlay">
+  <div class="overlay-card">
+    <h2>👋 Знакомимся?</h2>
+    <p class="hint">Так журнал будет подписывать отчёты. PIN — по желанию, защитит записи от чужих глаз на этом устройстве.</p>
+    <input type="text" id="wName" maxlength="60" placeholder="Ваше имя">
+    <input type="password" id="wPin" inputmode="numeric" maxlength="6" placeholder="PIN (4–6 цифр, можно пропустить)">
+    <div class="err" id="wErr"></div>
+    <button class="btn-forest" id="wStart" style="width:100%;justify-content:center">Начать вести дневник</button>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand-logo">🌿 Дневник прилавка</div>
+    <a class="header-phone" href="./">← На витрину</a>
+  </div>
+  <div class="container tabs-wrap">
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="form">✏️ Смена</button>
+      <button class="tab-btn" data-tab="entries">📔 Записи</button>
+      <button class="tab-btn" data-tab="analytics">📊 Аналитика</button>
+      <button class="tab-btn" data-tab="cabinet">👤 Кабинет</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="tab active" id="tab-form">
+    <div class="card">
+      <h2 id="formTitle">Новая смена</h2>
+      <p class="hint">Заполняйте в конце дня — журнал сам посчитает чистый остаток, заметит закономерности и соберёт список на закупку.</p>
+      <form id="entryForm">
+        <div class="grid2">
+          <div class="fg"><label for="f-date">Дата смены *</label><input type="date" id="f-date" required></div>
+          <div class="fg"><label for="f-place">Село / точка *</label><input type="text" id="f-place" list="placesOptions" placeholder="Например, Малиновка" required><datalist id="placesOptions"></datalist></div>
+          <div class="fg"><label for="f-weather">Погода</label><select id="f-weather">
+            <option value="">Не отметили</option>
+            <option value="sun">☀️ Ясно</option>
+            <option value="cloud">⛅ Облачно</option>
+            <option value="rain">🌧 Дождь</option>
+            <option value="snow">❄️ Снег</option>
+            <option value="frost">🥶 Мороз</option>
+            <option value="heat">🔥 Жара</option>
+            <option value="wind">🌬 Ветер</option>
+          </select></div>
+          <div class="fg"><label for="f-revenue">Выручка за день, ₽</label><input type="number" id="f-revenue" min="0" step="any" inputmode="decimal" placeholder="0"></div>
+          <div class="fg"><label for="f-purchase">Потрачено на закупку, ₽</label><input type="number" id="f-purchase" min="0" step="any" inputmode="decimal" placeholder="0"></div>
+          <div class="fg"><label for="f-family">Взято на семью, ₽</label><input type="number" id="f-family" min="0" step="any" inputmode="decimal" placeholder="0"></div>
+          <div class="fg"><label for="f-other">Прочие расходы (бензин, пакет), ₽</label><input type="number" id="f-other" min="0" step="any" inputmode="decimal" placeholder="0"></div>
+          <div class="fg"><label for="f-bestseller">Лучше всего продавалось</label><input type="text" id="f-bestseller" maxlength="200" placeholder="Тёплые платья, носки…"></div>
+          <div class="fg full"><label for="f-missing">Что закончилось / спрашивали, а не было</label><textarea id="f-missing" rows="2" maxlength="500" placeholder="Зонты, 46 размер, детские колготки — через запятую"></textarea></div>
+          <div class="fg full"><label for="f-notes">Заметки о дне</label><textarea id="f-notes" rows="2" maxlength="1000" placeholder="Что спросили, наблюдения, идеи"></textarea></div>
+        </div>
+        <div class="net-preview">
+          <span>Чистый остаток смены</span>
+          <strong id="netPreview">0 ₽</strong>
+          <span class="hint-sm">= выручка − закупка − на семью − прочие расходы</span>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-forest" id="submitBtn">Сохранить смену</button>
+          <button type="button" class="btn-ghost hidden" id="cancelEdit">Отменить правку</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-entries">
+    <div id="entriesList"></div>
+  </section>
+
+  <section class="tab" id="tab-analytics">
+    <div id="analyticsBox"></div>
+  </section>
+
+  <section class="tab" id="tab-cabinet">
+    <div class="card">
+      <h2>Профиль</h2>
+      <p class="hint">Имя попадает в отчёты для диплома. PIN можно задать или убрать в любой момент.</p>
+      <div class="row-inline" style="margin-bottom:10px">
+        <input type="text" id="cName" maxlength="60" placeholder="Имя для отчётов">
+        <button class="btn-ghost" id="cNameSave">Сохранить имя</button>
+      </div>
+      <div class="row-inline">
+        <input type="password" id="cPinNew" inputmode="numeric" maxlength="6" placeholder="Новый PIN (4–6 цифр, пусто — убрать)">
+        <button class="btn-ghost" id="cPinSave">Обновить PIN</button>
+      </div>
+      <p class="hint" style="margin:10px 0 0">PIN хранится в браузере — это защита от случайных глаз, а не шифрование.</p>
+    </div>
+    <div class="card">
+      <h2>Мои сёла</h2>
+      <p class="hint">Подсказки для поля «Село / точка». Новое село добавляется и само — когда вы впервые вводите его в форме.</p>
+      <div class="chips" id="placesChips"></div>
+      <div class="row-inline">
+        <input type="text" id="newPlace" maxlength="60" placeholder="Название села">
+        <button class="btn-ochre" id="addPlace">Добавить</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Счётчики для диплома</h2>
+      <p class="hint">Доказательство реального использования модуля: можно показать научному руководителю или включить в приложение к диплому.</p>
+      <div class="counter-grid" id="countersBox"></div>
+    </div>
+    <div class="card">
+      <h2>Данные и резервные копии</h2>
+      <p class="hint">Все записи живут только в этом браузере. Раз в неделю сохраняйте бэкап-файл — его можно импортировать на другом устройстве.</p>
+      <div class="row-inline">
+        <button class="btn-forest" id="exportJson">💾 Бэкап (файл)</button>
+        <button class="btn-ochre" id="exportCsv">📈 Выгрузка в Excel</button>
+        <button class="btn-ghost" id="reportTxt">🎓 Отчёт для диплома</button>
+        <button class="btn-ghost" id="importBtn">📥 Импорт бэкапа</button>
+        <input type="file" id="importJson" accept=".json,application/json" class="hidden">
+        <button class="btn-danger" id="clearAll">Стереть всё</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>Данные хранятся только в этом браузере — делайте бэкап в Кабинете.</span>
+    <span><a href="./">Витрина магазина</a></span>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+var LS_KEY='svetDiaryV1';
+var WEEK=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+var WEATHER={sun:'☀️ Ясно',cloud:'⛅ Облачно',rain:'🌧 Дождь',snow:'❄️ Снег',frost:'🥶 Мороз',heat:'🔥 Жара',wind:'🌬 Ветер'};
+var state=loadState();
+var editingId=null;
+
+function $(id){return document.getElementById(id);}
+function defaultState(){return{profile:{name:'',pin:''},meta:{opens:0,entriesCreated:0,firstOpen:new Date().toISOString()},places:['Малиновка'],entries:[]};}
+function normalize(s){s=s||{};s.profile=s.profile||{name:'',pin:''};s.meta=s.meta||{};s.meta.opens=s.meta.opens||0;s.meta.entriesCreated=s.meta.entriesCreated||0;if(!s.meta.firstOpen)s.meta.firstOpen=new Date().toISOString();s.places=Array.isArray(s.places)?s.places:[];s.entries=Array.isArray(s.entries)?s.entries:[];return s;}
+function loadState(){try{var raw=localStorage.getItem(LS_KEY);if(raw){var s=JSON.parse(raw);if(s&&typeof s==='object'){return normalize(s);}}}catch(e){}return defaultState();}
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(state));}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function money(n){return new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(n||0);}
+function num(v){var n=parseFloat(v);return isFinite(n)?n:0;}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDate(s){var p=String(s||'').split('-');if(p.length!==3)return s||'';return p[2]+'.'+p[1]+'.'+p[0];}
+function weekdayIdx(dateStr){var d=new Date(dateStr+'T00:00:00');return (d.getDay()+6)%7;}
+function hashPin(pin){var h=5381;for(var i=0;i<pin.length;i++){h=(((h<<5)+h)^pin.charCodeAt(i))>>>0;}return 'p'+h.toString(36);}
+function show(el){el.classList.add('open');}
+function hide(el){el.classList.remove('open');}
+var toastTimer=null;
+function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},2600);}
+function netOf(e){return e.revenue-e.purchase-e.family-e.other;}
+function download(name,content,type){var blob=new Blob([content],{type:type});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},0);}
+
+function switchTab(name){
+  var btns=document.querySelectorAll('.tab-btn');
+  for(var i=0;i<btns.length;i++){btns[i].classList.toggle('active',btns[i].getAttribute('data-tab')===name);}
+  var tabs=document.querySelectorAll('main .tab');
+  for(var j=0;j<tabs.length;j++){tabs[j].classList.toggle('active',tabs[j].id==='tab-'+name);}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetForm(){
+  $('entryForm').reset();
+  $('f-date').value=todayStr();
+  editingId=null;
+  $('formTitle').textContent='Новая смена';
+  $('submitBtn').textContent='Сохранить смену';
+  $('cancelEdit').classList.add('hidden');
+  updateNetPreview();
+}
+function updateNetPreview(){
+  var net=num($('f-revenue').value)-num($('f-purchase').value)-num($('f-family').value)-num($('f-other').value);
+  $('netPreview').textContent=money(net);
+}
+function onSubmit(e){
+  e.preventDefault();
+  var entry={
+    id:editingId||('e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+    date:$('f-date').value,
+    place:$('f-place').value.trim(),
+    weather:$('f-weather').value,
+    revenue:num($('f-revenue').value),
+    purchase:num($('f-purchase').value),
+    family:num($('f-family').value),
+    other:num($('f-other').value),
+    bestseller:$('f-bestseller').value.trim(),
+    missing:$('f-missing').value.trim(),
+    notes:$('f-notes').value.trim()
+  };
+  if(!entry.date||!entry.place){toast('Заполните дату и село');return;}
+  if(editingId){
+    var idx=-1;
+    for(var i=0;i<state.entries.length;i++){if(state.entries[i].id===editingId){idx=i;break;}}
+    if(idx>=0){entry.created=state.entries[idx].created;state.entries[idx]=entry;}
+    toast('Смена обновлена');
+  }else{
+    entry.created=new Date().toISOString();
+    state.entries.push(entry);
+    state.meta.entriesCreated=(state.meta.entriesCreated||0)+1;
+    toast('Смена сохранена');
+  }
+  if(state.places.indexOf(entry.place)<0)state.places.push(entry.place);
+  editingId=null;
+  resetForm();
+  save();
+  renderAll();
+}
+function editEntry(id){
+  var e=null;
+  for(var i=0;i<state.entries.length;i++){if(state.entries[i].id===id){e=state.entries[i];break;}}
+  if(!e)return;
+  editingId=id;
+  $('f-date').value=e.date;
+  $('f-place').value=e.place;
+  $('f-weather').value=e.weather||'';
+  $('f-revenue').value=e.revenue||'';
+  $('f-purchase').value=e.purchase||'';
+  $('f-family').value=e.family||'';
+  $('f-other').value=e.other||'';
+  $('f-bestseller').value=e.bestseller||'';
+  $('f-missing').value=e.missing||'';
+  $('f-notes').value=e.notes||'';
+  $('formTitle').textContent='Правка смены от '+fmtDate(e.date);
+  $('submitBtn').textContent='Сохранить изменения';
+  $('cancelEdit').classList.remove('hidden');
+  updateNetPreview();
+  switchTab('form');
+}
+function deleteEntry(id){
+  if(!confirm('Удалить эту запись о смене?'))return;
+  state.entries=state.entries.filter(function(e){return e.id!==id;});
+  save();
+  renderAll();
+  toast('Запись удалена');
+}
+
+function renderEntries(){
+  var box=$('entriesList');
+  if(!state.entries.length){
+    box.innerHTML='<div class="empty-state">Пока нет записей. Заполните первую смену на вкладке «✏️ Смена».</div>';
+    return;
+  }
+  var sorted=state.entries.slice().sort(function(a,b){return b.date.localeCompare(a.date)||(b.created||'').localeCompare(a.created||'');});
+  var html=sorted.map(function(e){
+    var w=e.weather&&WEATHER[e.weather]?WEATHER[e.weather]:'Погода не отмечена';
+    var texts='';
+    if(e.bestseller)texts+='<span>🏆 Лучше продавалось: '+esc(e.bestseller)+'</span>';
+    if(e.missing)texts+='<span>📝 Закончилось / спрашивали: '+esc(e.missing)+'</span>';
+    if(e.notes)texts+='<span>💬 '+esc(e.notes)+'</span>';
+    return '<div class="entry-card">'+
+      '<div class="entry-top">'+
+        '<span class="entry-date">'+esc(fmtDate(e.date))+'</span>'+
+        '<span class="entry-place">'+esc(e.place)+'</span>'+
+        '<span class="entry-weather">'+esc(w)+'</span>'+
+      '</div>'+
+      '<div class="entry-nums">'+
+        '<div class="row"><span>Выручка</span><strong>'+money(e.revenue)+'</strong></div>'+
+        '<div class="row"><span>Закупка</span><strong>'+money(e.purchase)+'</strong></div>'+
+        '<div class="row"><span>На семью</span><strong>'+money(e.family)+'</strong></div>'+
+        '<div class="row"><span>Прочие расходы</span><strong>'+money(e.other)+'</strong></div>'+
+        '<div class="row"><span>Чистый остаток</span><strong class="net">'+money(netOf(e))+'</strong></div>'+
+      '</div>'+
+      (texts?'<div class="entry-texts">'+texts+'</div>':'')+
+      '<div class="entry-actions">'+
+        '<button class="mini-btn" data-edit="'+esc(e.id)+'">Изменить</button>'+
+        '<button class="mini-btn del" data-del="'+esc(e.id)+'">Удалить</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  box.innerHTML='<div class="card" style="padding:14px 18px"><h2 style="font-size:22px">Записи: '+state.entries.length+'</h2><p class="hint" style="margin:0">Сначала идут самые свежие смены.</p></div>'+html;
+}
+
+function aggregates(){
+  var t={shifts:state.entries.length,revenue:0,purchase:0,family:0,other:0,net:0};
+  var byPlace={},byWeather={},byDay=WEEK.map(function(){return{n:0,rev:0};});
+  state.entries.forEach(function(e){
+    var net=netOf(e);
+    t.revenue+=e.revenue;t.purchase+=e.purchase;t.family+=e.family;t.other+=e.other;t.net+=net;
+    var p=byPlace[e.place]||(byPlace[e.place]={n:0,rev:0,net:0});
+    p.n++;p.rev+=e.revenue;p.net+=net;
+    var w=byWeather[e.weather]||(byWeather[e.weather]={n:0,rev:0});
+    w.n++;w.rev+=e.revenue;
+    var d=byDay[weekdayIdx(e.date)];
+    d.n++;d.rev+=e.revenue;
+  });
+  return{t:t,byPlace:byPlace,byWeather:byWeather,byDay:byDay};
+}
+function shoppingList(){
+  var map={};
+  state.entries.forEach(function(e){
+    String(e.missing||'').split(/[,;\n]+/).forEach(function(raw){
+      var s=raw.trim();
+      if(s.length<2)return;
+      var k=s.toLowerCase();
+      var it=map[k]||(map[k]={label:s,count:0,last:''});
+      it.count++;
+      if(e.date>it.last)it.last=e.date;
+    });
+  });
+  return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return b.count-a.count||b.last.localeCompare(a.last);});
+}
+function renderAnalytics(){
+  var box=$('analyticsBox');
+  if(!state.entries.length){
+    box.innerHTML='<div class="empty-state">Аналитика появится после первой записи о смене.</div>';
+    return;
+  }
+  var a=aggregates();
+  var t=a.t;
+  var placesArr=Object.keys(a.byPlace).map(function(k){var p=a.byPlace[k];return{place:k,n:p.n,rev:p.rev,net:p.net,avgRev:p.rev/p.n,avgNet:p.net/p.n};});
+  placesArr.sort(function(x,y){return y.avgNet-x.avgNet;});
+  var weatherArr=Object.keys(a.byWeather).map(function(k){var w=a.byWeather[k];return{w:k,n:w.n,avgRev:w.rev/w.n};}).sort(function(x,y){return y.avgRev-x.avgRev;});
+  var bestDayIdx=-1,bestDayAvg=0;
+  a.byDay.forEach(function(d,i){if(d.n>0&&d.rev/d.n>bestDayAvg){bestDayAvg=d.rev/d.n;bestDayIdx=i;}});
+  var list=shoppingList();
+  var html='<div class="card"><h2>Общие итоги</h2><p class="hint">Формула чистого остатка: выручка − закупка − взято на семью − прочие расходы.</p><div class="kpi-grid">'+
+    '<div class="kpi"><span class="kpi-label">Смен записано</span><strong class="kpi-value">'+t.shifts+'</strong></div>'+
+    '<div class="kpi"><span class="kpi-label">Выручка всего</span><strong class="kpi-value">'+money(t.revenue)+'</strong></div>'+
+    '<div class="kpi"><span class="kpi-label">Чистыми всего</span><strong class="kpi-value">'+money(t.net)+'</strong></div>'+
+    '<div class="kpi"><span class="kpi-label">Средняя выручка за смену</span><strong class="kpi-value">'+money(t.revenue/t.shifts)+'</strong></div>'+
+    (placesArr.length>1?'<div class="kpi"><span class="kpi-label">Лучшее село</span><strong class="kpi-value">'+esc(placesArr[0].place)+'</strong></div>':'')+
+    (bestDayIdx>=0?'<div class="kpi"><span class="kpi-label">Лучший день недели</span><strong class="kpi-value">'+WEEK[bestDayIdx]+'</strong></div>':'')+
+    (weatherArr.length>1?'<div class="kpi"><span class="kpi-label">Лучшая погода</span><strong class="kpi-value">'+esc(WEATHER[weatherArr[0].w]||weatherArr[0].w)+'</strong></div>':'')+
+  '</div></div>';
+  if(placesArr.length){
+    html+='<div class="card"><h2>Рейтинг сёл</h2><p class="hint">Сёла отсортированы по средней чистой прибыли за смену.</p><div class="table-scroll"><table><tr><th>Село</th><th class="num">Смен</th><th class="num">Ср. выручка</th><th class="num">Ср. чистыми</th><th class="num">Всего чистыми</th></tr>'+
+      placesArr.map(function(p,i){return '<tr'+(i===0&&placesArr.length>1?' class="best"':'')+'><td>'+esc(p.place)+'</td><td class="num">'+p.n+'</td><td class="num">'+money(p.avgRev)+'</td><td class="num">'+money(p.avgNet)+'</td><td class="num">'+money(p.net)+'</td></tr>';}).join('')+
+    '</table></div></div>';
+  }
+  if(weatherArr.length>1){
+    html+='<div class="card"><h2>Погода и выручка</h2><p class="hint">Показывает, как погода влияет на среднюю выручку за смену.</p><div class="table-scroll"><table><tr><th>Погода</th><th class="num">Смен</th><th class="num">Ср. выручка</th></tr>'+
+      weatherArr.map(function(w,i){return '<tr'+(i===0?' class="best"':'')+'><td>'+esc(WEATHER[w.w]||w.w)+'</td><td class="num">'+w.n+'</td><td class="num">'+money(w.avgRev)+'</td></tr>';}).join('')+
+    '</table></div></div>';
+  }
+  html+='<div class="card"><h2>Дни недели</h2><p class="hint">Средняя выручка по дням недели — планирование выездов.</p><div class="table-scroll"><table><tr><th>День</th><th class="num">Смен</th><th class="num">Ср. выручка</th></tr>'+
+    a.byDay.map(function(d,i){if(!d.n)return '';return '<tr'+(i===bestDayIdx?' class="best"':'')+'><td>'+WEEK[i]+'</td><td class="num">'+d.n+'</td><td class="num">'+money(d.rev/d.n)+'</td></tr>';}).join('')+
+  '</table></div></div>';
+  if(list.length){
+    html+='<div class="card"><h2>Список на закупку</h2><p class="hint">Собран из строк «что закончилось / спрашивали, а не было». Чем чаще просят — тем выше в списке.</p><div class="chips">'+
+      list.map(function(it){return '<span class="chip">'+esc(it.label)+' <span class="cnt">×'+it.count+'</span></span>';}).join('')+
+    '</div></div>';
+  }else{
+    html+='<div class="card"><h2>Список на закупку</h2><p class="hint">Заполняйте поле «Что закончилось / спрашивали, а не было» — здесь появится план закупок.</p></div>';
+  }
+  box.innerHTML=html;
+}
+
+function renderCounters(){
+  var m=state.meta;
+  var first=m.firstOpen?new Date(m.firstOpen):null;
+  var days=first?Math.max(1,Math.ceil((Date.now()-first.getTime())/86400000)):0;
+  var last='';
+  state.entries.forEach(function(e){var c=e.created||e.date;if(c>last)last=c;});
+  var lastShown=last?(last.length===10?fmtDate(last):new Date(last).toLocaleString('ru-RU')):'—';
+  var items=[
+    {lbl:'Открытий модуля',val:m.opens},
+    {lbl:'Смен создано',val:m.entriesCreated},
+    {lbl:'Записей сейчас в журнале',val:state.entries.length},
+    {lbl:'Дней с первого запуска',val:days},
+    {lbl:'Первый запуск',val:first?first.toLocaleDateString('ru-RU'):'—'},
+    {lbl:'Последнее изменение',val:lastShown}
+  ];
+  $('countersBox').innerHTML=items.map(function(it){return '<div class="counter-item"><span class="lbl">'+esc(it.lbl)+'</span><span class="val">'+esc(it.val)+'</span></div>';}).join('');
+}
+function renderPlaces(){
+  var opts=state.places.map(function(p){return '<option value="'+esc(p)+'"></option>';}).join('');
+  $('placesOptions').innerHTML=opts;
+  var chips=state.places.map(function(p){return '<span class="chip">'+esc(p)+'<button type="button" data-rm-place="'+esc(p)+'" title="Убрать">✕</button></span>';}).join('');
+  $('placesChips').innerHTML=chips||'<span class="hint">Список пуст.</span>';
+  $('cName').value=state.profile.name||'';
+}
+function renderCabinet(){
+  renderPlaces();
+  renderCounters();
+}
+
+function renderAll(){
+  updateNetPreview();
+  renderEntries();
+  renderAnalytics();
+  renderCabinet();
+}
+
+function exportJson(){
+  download('diary-backup-'+todayStr()+'.json',JSON.stringify(state,null,2),'application/json');
+  toast('Бэкап скачан');
+}
+function exportCsv(){
+  if(!state.entries.length){toast('Нет записей для выгрузки');return;}
+  var head=['Дата','Село','Погода','Выручка','Закупка','На семью','Прочие расходы','Чистый остаток','Лучше продавалось','Закончилось/спрашивали','Заметки'];
+  var rows=state.entries.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(e){
+    return [fmtDate(e.date),e.place,(WEATHER[e.weather]||''),e.revenue,e.purchase,e.family,e.other,netOf(e),e.bestseller,e.missing,e.notes].map(function(v){return '"'===v[0]||/[;\n"]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);}).join(';');
+  });
+  download('diary-'+todayStr()+'.csv','\uFEFF'+head.join(';')+'\r\n'+rows.join('\r\n'),'text/csv;charset=utf-8');
+  toast('CSV для Excel скачан');
+}
+function reportTxt(){
+  var a=state.entries.length?aggregates():null;
+  var m=state.meta;
+  var first=m.firstOpen?new Date(m.firstOpen):null;
+  var lines=[];
+  lines.push('ОТЧЁТ МОДУЛЯ «УМНЫЙ ДНЕВНИК ПРИЛАВКА»');
+  lines.push('Сформирован: '+new Date().toLocaleString('ru-RU'));
+  lines.push('Владелец: '+(state.profile.name||'не указано'));
+  lines.push('');
+  lines.push('СЧЁТЧИКИ ИСПОЛЬЗОВАНИЯ');
+  lines.push('Первый запуск: '+(first?first.toLocaleString('ru-RU'):'—'));
+  lines.push('Открытий модуля: '+m.opens);
+  lines.push('Смен создано через модуль: '+m.entriesCreated);
+  lines.push('Записей в журнале сейчас: '+state.entries.length);
+  if(first)lines.push('Дней с первого запуска: '+Math.max(1,Math.ceil((Date.now()-first.getTime())/86400000)));
+  if(a){
+    var t=a.t;
+    lines.push('');
+    lines.push('ФИНАНСОВЫЕ ИТОГИ');
+    lines.push('Выручка всего: '+money(t.revenue));
+    lines.push('Чистыми всего: '+money(t.net));
+    lines.push('Средняя выручка за смену: '+money(t.revenue/t.shifts));
+    var placesArr=Object.keys(a.byPlace).map(function(k){var p=a.byPlace[k];return{place:k,n:p.n,avgNet:p.net/p.n,net:p.net};}).sort(function(x,y){return y.avgNet-x.avgNet;});
+    if(placesArr.length){
+      lines.push('');
+      lines.push('РЕЙТИНГ СЁЛ (по средней чистой прибыли за смену)');
+      placesArr.forEach(function(p){lines.push(p.place+': смен '+p.n+', в среднем '+money(p.avgNet)+' чистыми, всего '+money(p.net));});
+    }
+    var weatherArr=Object.keys(a.byWeather).map(function(k){var w=a.byWeather[k];return{w:(WEATHER[k]||k),n:w.n,avgRev:w.rev/w.n};}).sort(function(x,y){return y.avgRev-x.avgRev;});
+    if(weatherArr.length>1){
+      lines.push('');
+      lines.push('ВЛИЯНИЕ ПОГОДЫ (средняя выручка)');
+      weatherArr.forEach(function(w){lines.push(w.w+': смен '+w.n+', в среднем '+money(w.avgRev));});
+    }
+    var bestDayIdx=-1,bestDayAvg=0;
+    a.byDay.forEach(function(d,i){if(d.n>0&&d.rev/d.n>bestDayAvg){bestDayAvg=d.rev/d.n;bestDayIdx=i;}});
+    if(bestDayIdx>=0){
+      lines.push('');
+      lines.push('ДНИ НЕДЕЛИ (средняя выручка)');
+      a.byDay.forEach(function(d,i){if(d.n)lines.push(WEEK[i]+': смен '+d.n+', в среднем '+money(d.rev/d.n));});
+      lines.push('Лучший день: '+WEEK[bestDayIdx]);
+    }
+    var list=shoppingList();
+    if(list.length){
+      lines.push('');
+      lines.push('СПИСОК НА ЗАКУПКУ (частота запросов)');
+      list.forEach(function(it){lines.push(it.label+' — просили '+it.count+' раз (последний раз '+fmtDate(it.last)+')');});
+    }
+  }
+  lines.push('');
+  lines.push('Модуль: diary.html, сайт магазина, данные устройства владельца.');
+  download('diploma-report-'+todayStr()+'.txt','\uFEFF'+lines.join('\r\n'),'text/plain;charset=utf-8');
+  toast('Отчёт для диплома скачан');
+}
+function importJsonFile(file){
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var parsed=JSON.parse(reader.result);
+      if(!parsed||!Array.isArray(parsed.entries))throw new Error('bad');
+      if(!confirm('Заменить текущие данные дневника содержимым файла?'))return;
+      state=normalize(parsed);
+      save();
+      renderAll();
+      toast('Данные восстановлены из бэкапа');
+    }catch(e){
+      toast('Не удалось прочитать файл бэкапа');
+    }
+  };
+  reader.readAsText(file,'utf-8');
+}
+
+function bindEvents(){
+  var btns=document.querySelectorAll('.tab-btn');
+  for(var i=0;i<btns.length;i++){
+    btns[i].addEventListener('click',function(){switchTab(this.getAttribute('data-tab'));});
+  }
+  $('entryForm').addEventListener('submit',onSubmit);
+  ['f-revenue','f-purchase','f-family','f-other'].forEach(function(id){$(id).addEventListener('input',updateNetPreview);});
+  $('cancelEdit').addEventListener('click',function(){resetForm();toast('Правка отменена');});
+  $('entriesList').addEventListener('click',function(e){
+    var t=e.target.closest('button');
+    if(!t)return;
+    if(t.hasAttribute('data-edit'))editEntry(t.getAttribute('data-edit'));
+    if(t.hasAttribute('data-del'))deleteEntry(t.getAttribute('data-del'));
+  });
+  $('cNameSave').addEventListener('click',function(){
+    state.profile.name=$('cName').value.trim();
+    save();
+    toast('Имя сохранено');
+  });
+  $('cPinSave').addEventListener('click',function(){
+    var v=$('cPinNew').value.trim();
+    if(!v){
+      if(state.profile.pin&&confirm('Убрать PIN-код? Дневник будет открываться без пароля.')){state.profile.pin='';save();$('cPinNew').value='';toast('PIN убран');}
+      return;
+    }
+    if(!/^\d{4,6}$/.test(v)){toast('PIN — от 4 до 6 цифр');return;}
+    state.profile.pin=hashPin(v);
+    save();
+    $('cPinNew').value='';
+    toast('PIN обновлён');
+  });
+  $('addPlace').addEventListener('click',function(){
+    var v=$('newPlace').value.trim();
+    if(!v){toast('Введите название села');return;}
+    if(state.places.indexOf(v)>=0){toast('Такое село уже есть');return;}
+    state.places.push(v);
+    save();
+    renderCabinet();
+    $('newPlace').value='';
+    toast('Село добавлено');
+  });
+  $('placesChips').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-rm-place]');
+    if(!b)return;
+    state.places=state.places.filter(function(p){return p!==b.getAttribute('data-rm-place');});
+    save();
+    renderCabinet();
+  });
+  $('exportJson').addEventListener('click',exportJson);
+  $('exportCsv').addEventListener('click',exportCsv);
+  $('reportTxt').addEventListener('click',reportTxt);
+  $('importBtn').addEventListener('click',function(){$('importJson').click();});
+  $('importJson').addEventListener('change',function(){
+    if(this.files&&this.files[0])importJsonFile(this.files[0]);
+    this.value='';
+  });
+  $('clearAll').addEventListener('click',function(){
+    if(!confirm('Удалить все записи, профиль и настройки дневника?'))return;
+    if(!confirm('Точно стереть всё без возможности отмены? Сначала лучше сохранить бэкап.'))return;
+    localStorage.removeItem(LS_KEY);
+    location.reload();
+  });
+  function tryUnlock(){
+    if(hashPin($('lockPin').value)===state.profile.pin){
+      sessionStorage.setItem('svetDiaryUnlocked','1');
+      hide($('lockOverlay'));
+      $('lockPin').value='';
+      $('lockErr').textContent='';
+      toast('Дневник открыт');
+    }else{
+      $('lockErr').textContent='Неверный PIN-код';
+    }
+  }
+  $('lockBtn').addEventListener('click',tryUnlock);
+  $('lockPin').addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+  $('wStart').addEventListener('click',function(){
+    var name=$('wName').value.trim();
+    var pin=$('wPin').value.trim();
+    if(pin&&!/^\d{4,6}$/.test(pin)){$('wErr').textContent='PIN — от 4 до 6 цифр';return;}
+    state.profile.name=name||'Хозяйка прилавка';
+    if(pin)state.profile.pin=hashPin(pin);
+    save();
+    hide($('welcomeOverlay'));
+    renderAll();
+    toast('Дневник готов, '+state.profile.name+'!');
+  });
+}
+
+function init(){
+  state.meta.opens++;
+  save();
+  bindEvents();
+  var locked=!!state.profile.pin&&!sessionStorage.getItem('svetDiaryUnlocked');
+  if(locked){
+    show($('lockOverlay'));
+  }else if(!state.profile.name){
+    show($('welcomeOverlay'));
+  }
+  switchTab('form');
+  renderAll();
+}
+init();
+</script>
+</body>
+</html>
