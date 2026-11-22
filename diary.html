@@ -758,9 +758,6 @@ function bindGate(){
   function renderDots(){
     var arr=dots.querySelectorAll('.dot');
     for(var i=0;i<arr.length;i++)arr[i].classList.toggle('on',i<pin.length);
-    for(var j=0;j<arr.length;j++)arr[j].style.visibility='';
-    for(var k=pin.length;k<4;k++)arr[k].style.visibility='hidden';
-    for(var m=4;m<arr.length;m++)arr[m].style.display='none';
   }
   function fail(){
     $('lockErr').textContent='Неверный код';
