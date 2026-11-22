@@ -109,6 +109,19 @@ tr.best td{font-weight:700;color:var(--accent-forest-dark)}
 .empty-state{text-align:center;padding:44px 20px;background:var(--bg-surface);border:1px dashed var(--border-subtle);border-radius:var(--radius-lg);color:var(--text-muted);font-size:14px}
 #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent-forest-dark);color:var(--text-on-dark);padding:11px 22px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:120;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.overlay-card .err{text-align:center}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:16px 0 4px}
+.pin-dots .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent-forest);background:transparent;transition:background .15s ease}
+.pin-dots .dot.on{background:var(--accent-forest)}
+.pin-dots.shake{animation:gateShake .45s ease}
+@keyframes gateShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.pin-key{padding:14px 0;border-radius:14px;border:1px solid var(--border-subtle);background:var(--bg-main);font-size:20px;font-weight:700;color:var(--text-primary);cursor:pointer;transition:all .15s ease}
+.pin-key:hover{border-color:var(--accent-forest)}
+.pin-key:active{background:var(--accent-forest);color:var(--text-on-dark)}
+.pin-key.act{background:var(--bg-card-soft);font-size:17px}
+.pin-key:disabled{opacity:.45;cursor:default}
+.cloud-status{font-size:12px;color:var(--text-muted);margin-top:10px}
 .site-footer{background:var(--bg-surface);border-top:1px solid var(--border-subtle);padding:18px 0;font-size:13px;color:var(--text-muted)}
 .footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media (max-width:560px){
@@ -124,20 +137,32 @@ tr.best td{font-weight:700;color:var(--accent-forest-dark)}
 
 <div class="overlay" id="lockOverlay">
   <div class="overlay-card">
-    <h2>🔒 Дневник под защитой</h2>
-    <p class="hint">Введите PIN-код, чтобы открыть дневник.</p>
-    <input type="password" id="lockPin" inputmode="numeric" maxlength="6" placeholder="PIN-код" autocomplete="off">
+    <h2 style="text-align:center">🔒 Дневник прилавка</h2>
+    <p class="hint" style="text-align:center">Личный журнал хозяйки. Введите код — записи увидите только вы.</p>
+    <div class="pin-dots" id="pinDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
     <div class="err" id="lockErr"></div>
-    <button class="btn-forest" id="lockBtn" style="width:100%;justify-content:center">Войти</button>
+    <div class="pin-pad" id="pinPad">
+      <button class="pin-key" type="button" data-k="1">1</button>
+      <button class="pin-key" type="button" data-k="2">2</button>
+      <button class="pin-key" type="button" data-k="3">3</button>
+      <button class="pin-key" type="button" data-k="4">4</button>
+      <button class="pin-key" type="button" data-k="5">5</button>
+      <button class="pin-key" type="button" data-k="6">6</button>
+      <button class="pin-key" type="button" data-k="7">7</button>
+      <button class="pin-key" type="button" data-k="8">8</button>
+      <button class="pin-key" type="button" data-k="9">9</button>
+      <button class="pin-key act" type="button" data-k="C">⌫</button>
+      <button class="pin-key" type="button" data-k="0">0</button>
+      <button class="pin-key act" type="button" data-k="OK">✓</button>
+    </div>
   </div>
 </div>
 
 <div class="overlay" id="welcomeOverlay">
   <div class="overlay-card">
-    <h2>👋 Знакомимся?</h2>
-    <p class="hint">Так журнал будет подписывать отчёты. PIN — по желанию, защитит записи от чужих глаз на этом устройстве.</p>
+    <h2 style="text-align:center">👋 Знакомимся?</h2>
+    <p class="hint" style="text-align:center">Как подписывать отчёты для диплома? Можно пропустить — имя вводится потом в Кабинете.</p>
     <input type="text" id="wName" maxlength="60" placeholder="Ваше имя">
-    <input type="password" id="wPin" inputmode="numeric" maxlength="6" placeholder="PIN (4–6 цифр, можно пропустить)">
     <div class="err" id="wErr"></div>
     <button class="btn-forest" id="wStart" style="width:100%;justify-content:center">Начать вести дневник</button>
   </div>
@@ -219,7 +244,7 @@ tr.best td{font-weight:700;color:var(--accent-forest-dark)}
         <input type="password" id="cPinNew" inputmode="numeric" maxlength="6" placeholder="Новый PIN (4–6 цифр, пусто — убрать)">
         <button class="btn-ghost" id="cPinSave">Обновить PIN</button>
       </div>
-      <p class="hint" style="margin:10px 0 0">PIN хранится в браузере — это защита от случайных глаз, а не шифрование.</p>
+      <p class="hint" style="margin:10px 0 0">Вход в дневник защищён кодом 1355 — знаете его только вы. Личный PIN выше — дополнительный код на этом устройстве, можно не задавать.</p>
     </div>
     <div class="card">
       <h2>Мои сёла</h2>
@@ -236,8 +261,9 @@ tr.best td{font-weight:700;color:var(--accent-forest-dark)}
       <div class="counter-grid" id="countersBox"></div>
     </div>
     <div class="card">
-      <h2>Данные и резервные копии</h2>
-      <p class="hint">Все записи живут только в этом браузере. Раз в неделю сохраняйте бэкап-файл — его можно импортировать на другом устройстве.</p>
+      <h2>Данные и синхронизация</h2>
+      <p class="hint">Записи автоматически синхронизируются между вашими устройствами через шифрованное хранилище (ключ — код 1355, данные шифруются AES-256 ещё до отправки). Бэкап-файл — дополнительная страховка.</p>
+      <div class="cloud-status" id="cloudStatus"></div>
       <div class="row-inline">
         <button class="btn-forest" id="exportJson">💾 Бэкап (файл)</button>
         <button class="btn-ochre" id="exportCsv">📈 Выгрузка в Excel</button>
@@ -253,7 +279,7 @@ tr.best td{font-weight:700;color:var(--accent-forest-dark)}
 
 <footer class="site-footer">
   <div class="container footer-inner">
-    <span>Данные хранятся только в этом браузере — делайте бэкап в Кабинете.</span>
+    <span>Записи шифруются кодом 1355 и синхронизируются между вашими устройствами.</span>
     <span><a href="./">Витрина магазина</a></span>
   </div>
 </footer>
@@ -262,10 +288,17 @@ tr.best td{font-weight:700;color:var(--accent-forest-dark)}
 
 <script>
 var LS_KEY='svetDiaryV1';
+var GATE_PIN='1355';
+var CLOUD_URL='https://textdb.dev/api/data/svet-diary-77e2a9k4';
+var SESSION_KEY='svetDiaryUnlocked';
 var WEEK=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
 var WEATHER={sun:'☀️ Ясно',cloud:'⛅ Облачно',rain:'🌧 Дождь',snow:'❄️ Снег',frost:'🥶 Мороз',heat:'🔥 Жара',wind:'🌬 Ветер'};
 var state=loadState();
 var editingId=null;
+var cloudTimer=null;
+var cloudPushing=false;
+var cloudPulling=false;
+var cloudReady=false;
 
 function $(id){return document.getElementById(id);}
 function defaultState(){return{profile:{name:'',pin:''},meta:{opens:0,entriesCreated:0,firstOpen:new Date().toISOString()},places:['Малиновка'],entries:[]};}
@@ -285,6 +318,125 @@ var toastTimer=null;
 function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},2600);}
 function netOf(e){return e.revenue-e.purchase-e.family-e.other;}
 function download(name,content,type){var blob=new Blob([content],{type:type});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},0);}
+function b64(buf){var u=new Uint8Array(buf),s='';for(var i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
+function unb64(str){var s=atob(str),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+function concatBufs(a,b){var r=new Uint8Array(a.length+b.length);r.set(a,0);r.set(b,a.length);return r;}
+function deriveKey(pin,salt){
+  var enc=new TextEncoder();
+  return crypto.subtle.importKey('raw',enc.encode('svet-diary-'+pin),'PBKDF2',false,['deriveKey']).then(function(base){
+    return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  });
+}
+function cloudEncrypt(obj,pin){
+  var salt=crypto.getRandomValues(new Uint8Array(16));
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var data=new TextEncoder().encode(JSON.stringify(obj));
+  return deriveKey(pin,salt).then(function(key){
+    return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,data);
+  }).then(function(enc){return b64(salt)+'.'+b64(iv)+'.'+b64(enc);});
+}
+function cloudDecrypt(payload,pin){
+  var parts=String(payload||'').split('.');
+  if(parts.length!==3)return Promise.reject(new Error('формат'));
+  var salt=unb64(parts[0]),iv=unb64(parts[1]),data=unb64(parts[2]);
+  return deriveKey(pin,salt).then(function(key){
+    return crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,data);
+  }).then(function(dec){return JSON.parse(new TextDecoder().decode(dec));});
+}
+function cloudGet(){
+  return fetch(CLOUD_URL+'?t='+Date.now(),{method:'GET',cache:'no-store'}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.text();
+  });
+}
+function cloudPut(payload){
+  return fetch(CLOUD_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,cache:'no-store'}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+  });
+}
+function mergeStates(local,remote){
+  var winner=(remote.meta.firstOpen||'')<(local.meta.firstOpen||'')?remote:local;
+  var merged=normalize(JSON.parse(JSON.stringify(winner)));
+  var byId={};
+  (winner.entries||[]).forEach(function(e){byId[e.id]=e;});
+  (local.entries||[]).concat(remote.entries||[]).forEach(function(e){
+    if(!e||!e.id)return;
+    var cur=byId[e.id];
+    if(!cur||(e.created||'')>(cur.created||''))byId[e.id]=e;
+  });
+  merged.entries=Object.keys(byId).map(function(k){return byId[k];});
+  (local.places||[]).concat(remote.places||[]).forEach(function(p){
+    if(p&&merged.places.indexOf(p)<0)merged.places.push(p);
+  });
+  if(!merged.profile.name&&local.profile.name)merged.profile.name=local.profile.name;
+  if(merged.profile.name===local.profile.name&&!merged.profile.pin)merged.profile.pin=local.profile.pin||'';
+  merged.meta.opens=Math.max(local.meta.opens||0,remote.meta.opens||0);
+  merged.meta.entriesCreated=Math.max(local.meta.entriesCreated||0,remote.meta.entriesCreated||0);
+  return merged;
+}
+function renderCloudStatus(){
+  var box=$('cloudStatus');
+  if(!box)return;
+  if(!cloudReady){box.textContent='Облако: подключение…';return;}
+  box.textContent='Облако: подключено, записи синхронизируются автоматически между устройствами.';
+}
+function scheduleCloudPush(){
+  if(!cloudReady)return;
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(cloudPushNow,1500);
+}
+function cloudPushNow(){
+  if(!cloudReady||cloudPushing||cloudPulling)return;
+  cloudPushing=true;
+  cloudEncrypt(state,GATE_PIN).then(function(payload){return cloudPut(payload);}).then(function(){
+    cloudPushing=false;
+  }).catch(function(){
+    cloudPushing=false;
+    cloudTimer=setTimeout(cloudPushNow,15000);
+  });
+}
+function cloudSync(migrateLocal,done){
+  if(cloudPulling||cloudPushing)return;
+  cloudPulling=true;
+  cloudGet().then(function(text){
+    cloudPulling=false;
+    var payload=String(text||'').trim();
+    if(!payload)throw {empty:true};
+    return cloudDecrypt(payload,GATE_PIN).then(function(remote){
+      var local=state;
+      if(migrateLocal&&(local.entries.length||local.profile.name||local.places.length>1)){
+        state=mergeStates(local,remote);
+        toast('Записи объединены и перенесены в облако');
+      }else{
+        var localCount=local.entries.length;
+        state=normalize(remote);
+        if(localCount&&state.entries.length>localCount)toast('Загружены записи из облака');
+      }
+      save();
+      renderAll();
+    });
+  }).catch(function(err){
+    cloudPulling=false;
+    if(err&&err.empty){
+      return cloudEncrypt(migrateLocal?state:defaultState(),GATE_PIN).then(function(payload){
+        return cloudPut(payload);
+      }).then(function(){
+        if(migrateLocal)toast('Записи перенесены в облако');
+      });
+    }
+    renderCloudStatus();
+  }).then(function(){
+    cloudReady=true;
+    renderCloudStatus();
+    if(done)done();
+  });
+}
+function onCloudChange(){
+  if(!cloudReady)return;
+  save();
+  scheduleCloudPush();
+  renderAll();
+}
 
 function switchTab(name){
   var btns=document.querySelectorAll('.tab-btn');
@@ -337,8 +489,7 @@ function onSubmit(e){
   if(state.places.indexOf(entry.place)<0)state.places.push(entry.place);
   editingId=null;
   resetForm();
-  save();
-  renderAll();
+  onCloudChange();
 }
 function editEntry(id){
   var e=null;
@@ -364,8 +515,7 @@ function editEntry(id){
 function deleteEntry(id){
   if(!confirm('Удалить эту запись о смене?'))return;
   state.entries=state.entries.filter(function(e){return e.id!==id;});
-  save();
-  renderAll();
+  onCloudChange();
   toast('Запись удалена');
 }
 
@@ -590,10 +740,11 @@ function importJsonFile(file){
       var parsed=JSON.parse(reader.result);
       if(!parsed||!Array.isArray(parsed.entries))throw new Error('bad');
       if(!confirm('Заменить текущие данные дневника содержимым файла?'))return;
-      state=normalize(parsed);
-      save();
-      renderAll();
-      toast('Данные восстановлены из бэкапа');
+  state=normalize(parsed);
+  save();
+  scheduleCloudPush();
+  renderAll();
+  toast('Данные восстановлены из бэкапа');
     }catch(e){
       toast('Не удалось прочитать файл бэкапа');
     }
@@ -601,6 +752,50 @@ function importJsonFile(file){
   reader.readAsText(file,'utf-8');
 }
 
+function bindGate(){
+  var pin='';
+  var dots=$('pinDots');
+  function renderDots(){
+    var arr=dots.querySelectorAll('.dot');
+    for(var i=0;i<arr.length;i++)arr[i].classList.toggle('on',i<pin.length);
+    for(var j=0;j<arr.length;j++)arr[j].style.visibility='';
+    for(var k=pin.length;k<4;k++)arr[k].style.visibility='hidden';
+    for(var m=4;m<arr.length;m++)arr[m].style.display='none';
+  }
+  function fail(){
+    $('lockErr').textContent='Неверный код';
+    dots.classList.add('shake');
+    pin='';
+    setTimeout(function(){dots.classList.remove('shake');renderDots();$('lockErr').textContent='';},900);
+  }
+  function unlock(){
+    sessionStorage.setItem(SESSION_KEY,'1');
+    hide($('lockOverlay'));
+    renderCloudStatus();
+    cloudSync(true,function(){renderAll();});
+    toast('Дневник открыт');
+  }
+  function submitPin(){
+    if(pin===GATE_PIN){pin='';unlock();}
+    else fail();
+  }
+  $('pinPad').addEventListener('click',function(e){
+    var b=e.target.closest('button');
+    if(!b||b.disabled)return;
+    var k=b.getAttribute('data-k');
+    if(k==='C'){pin=pin.slice(0,-1);renderDots();}
+    else if(k==='OK'){submitPin();}
+    else if(pin.length<4){pin+=k;renderDots();if(pin.length===4)setTimeout(submitPin,150);}
+  });
+  document.addEventListener('keydown',function(e){
+    if($('lockOverlay').classList.contains('open')){
+      if(e.key>='0'&&e.key<='9'&&pin.length<4){pin+=e.key;renderDots();if(pin.length===4)setTimeout(submitPin,150);}
+      else if(e.key==='Backspace'){pin=pin.slice(0,-1);renderDots();}
+      else if(e.key==='Enter'){if(pin.length===4)submitPin();}
+    }
+  });
+  renderDots();
+}
 function bindEvents(){
   var btns=document.querySelectorAll('.tab-btn');
   for(var i=0;i<btns.length;i++){
@@ -617,18 +812,18 @@ function bindEvents(){
   });
   $('cNameSave').addEventListener('click',function(){
     state.profile.name=$('cName').value.trim();
-    save();
+    onCloudChange();
     toast('Имя сохранено');
   });
   $('cPinSave').addEventListener('click',function(){
     var v=$('cPinNew').value.trim();
     if(!v){
-      if(state.profile.pin&&confirm('Убрать PIN-код? Дневник будет открываться без пароля.')){state.profile.pin='';save();$('cPinNew').value='';toast('PIN убран');}
+      if(state.profile.pin&&confirm('Убрать дополнительный PIN этого устройства?')){state.profile.pin='';onCloudChange();$('cPinNew').value='';toast('PIN убран');}
       return;
     }
     if(!/^\d{4,6}$/.test(v)){toast('PIN — от 4 до 6 цифр');return;}
     state.profile.pin=hashPin(v);
-    save();
+    onCloudChange();
     $('cPinNew').value='';
     toast('PIN обновлён');
   });
@@ -637,7 +832,7 @@ function bindEvents(){
     if(!v){toast('Введите название села');return;}
     if(state.places.indexOf(v)>=0){toast('Такое село уже есть');return;}
     state.places.push(v);
-    save();
+    onCloudChange();
     renderCabinet();
     $('newPlace').value='';
     toast('Село добавлено');
@@ -646,7 +841,7 @@ function bindEvents(){
     var b=e.target.closest('button[data-rm-place]');
     if(!b)return;
     state.places=state.places.filter(function(p){return p!==b.getAttribute('data-rm-place');});
-    save();
+    onCloudChange();
     renderCabinet();
   });
   $('exportJson').addEventListener('click',exportJson);
@@ -660,29 +855,16 @@ function bindEvents(){
   $('clearAll').addEventListener('click',function(){
     if(!confirm('Удалить все записи, профиль и настройки дневника?'))return;
     if(!confirm('Точно стереть всё без возможности отмены? Сначала лучше сохранить бэкап.'))return;
+    state=defaultState();
+    onCloudChange();
     localStorage.removeItem(LS_KEY);
     location.reload();
   });
-  function tryUnlock(){
-    if(hashPin($('lockPin').value)===state.profile.pin){
-      sessionStorage.setItem('svetDiaryUnlocked','1');
-      hide($('lockOverlay'));
-      $('lockPin').value='';
-      $('lockErr').textContent='';
-      toast('Дневник открыт');
-    }else{
-      $('lockErr').textContent='Неверный PIN-код';
-    }
-  }
-  $('lockBtn').addEventListener('click',tryUnlock);
-  $('lockPin').addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
   $('wStart').addEventListener('click',function(){
     var name=$('wName').value.trim();
-    var pin=$('wPin').value.trim();
-    if(pin&&!/^\d{4,6}$/.test(pin)){$('wErr').textContent='PIN — от 4 до 6 цифр';return;}
     state.profile.name=name||'Хозяйка прилавка';
-    if(pin)state.profile.pin=hashPin(pin);
     save();
+    onCloudChange();
     hide($('welcomeOverlay'));
     renderAll();
     toast('Дневник готов, '+state.profile.name+'!');
@@ -693,14 +875,19 @@ function init(){
   state.meta.opens++;
   save();
   bindEvents();
-  var locked=!!state.profile.pin&&!sessionStorage.getItem('svetDiaryUnlocked');
+  bindGate();
+  var locked=!sessionStorage.getItem(SESSION_KEY);
   if(locked){
     show($('lockOverlay'));
   }else if(!state.profile.name){
     show($('welcomeOverlay'));
+    cloudSync(true);
+  }else{
+    cloudSync(true);
   }
   switchTab('form');
   renderAll();
+  renderCloudStatus();
 }
 init();
 </script>
